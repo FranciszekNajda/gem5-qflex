@@ -229,8 +229,26 @@ print(f"  ARM release: {arm_release}")
 # ============================================================================
 print("\n[Step 2] Creating QFlex platform...")
 
+# Look for kernel (optional, can boot from disk via UEFI).
+# Done before creating the workload: ArmFsLinux needs the kernel's
+# symbols (it panics on __udelay without them), so when no kernel is
+# found the generic ARM full-system workload is used instead.
+kernel_path = None
+if os.path.exists(args.kernel):
+    kernel_path = args.kernel
+else:
+    kernel_search_paths = [
+        f'binaries/{args.kernel}',
+        f'gem5/binaries/{args.kernel}',
+    ]
+    for kpath in kernel_search_paths:
+        if os.path.exists(kpath):
+            kernel_path = kpath
+            break
+
 # Create workload
-workload = ArmFsLinux()
+workload = ArmFsLinux() if kernel_path else ArmFsWorkload()
+print(f"  Workload: {type(workload).__name__}")
 
 # Create system with QFlex platform
 system = devices.SimpleSystem(
@@ -379,21 +397,7 @@ system.m5ops_base = 0x10010000
 # else:
 #     print(f"  Bootloader not found (checkpoint will work without it)")
 
-# Look for kernel (optional, can boot from disk via UEFI)
-
-kernel_path = None
-if os.path.exists(args.kernel):
-    kernel_path = args.kernel
-else:
-    kernel_search_paths = [
-        f'binaries/{args.kernel}',
-        f'gem5/binaries/{args.kernel}',
-    ]
-    for kpath in kernel_search_paths:
-        if os.path.exists(kpath):
-            kernel_path = kpath
-            break
-
+# kernel_path is resolved in Step 2 (it decides the workload type).
 if kernel_path:
     print(f"  Using kernel: {kernel_path}")
     system.workload.object_file = kernel_path
