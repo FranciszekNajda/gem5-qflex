@@ -117,6 +117,11 @@ CPU_RELEASE_OFFSET_FROM_DTB = -8
 # never uses the m5 tool.
 M5OPS_BASE = 0x10010000
 
+# SVE vector length, in 128-bit units: QEMU max offers up to 2048 bits
+# (the guest kernel reports "maximum available vector length 256 bytes"
+# and gives programs 64 bytes by default), so gem5 implements 2048 bits.
+SVE_VL_QUADWORDS = 16
+
 # Kernel command line, only used when gem5 boots a kernel (see above).
 # One option per line:
 KERNEL_CMDLINE_OPTIONS = [
@@ -352,6 +357,8 @@ def build_system(args, kernel_path=None, root_device="/dev/vda1"):
     system.phys_addr_range_64 = PHYS_ADDR_BITS
     system.have_large_asid_64 = LARGE_ASID
 
+    system.sve_vl = SVE_VL_QUADWORDS
+
     # Generic timer counter at QEMU's frequency.
     system.realview.sys_counter.freqs = [QEMU_CNTFRQ_HZ]
 
@@ -446,4 +453,3 @@ def set_max_insts(system, max_insts):
     for cluster in system.cpu_cluster:
         for cpu in cluster.cpus:
             cpu.max_insts_any_thread = max_insts
-            
