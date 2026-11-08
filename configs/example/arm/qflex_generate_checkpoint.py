@@ -258,6 +258,9 @@ system = devices.SimpleSystem(
     workload=workload,
     platform=QFlex_GICv3(memmap=memmap_cfg),  # Pass memmap dict
 )
+system.phys_addr_range_64 = 48
+system.have_large_asid_64 = True
+system.realview.sys_counter.freqs = [62_500_000]
 
 print(f"  Platform: QFlex_GICv3 with QEMU virt memory map")
 print(f"  Memory mode: atomic")
@@ -350,13 +353,8 @@ print(f"  {num_cores} x AtomicSimpleCPU @ {args.cpu_freq}")
 # Configure ARM release and remove SECURITY/VIRTUALIZATION
 print(f"\n[Step 7] Configuring ARM release...")
 
-# Create ARM release object based on extracted info
-if arm_release == "armv8":
-    release = Armv8()
-elif arm_release == "armv8.2":
-    release = Armv82()
-else:
-    release = Armv8()  # Default fallback
+# Same release as qflex_system.py (the id-overrides file is generated from it)
+release = ArmAllRelease()
 
 # Remove SECURITY and VIRTUALIZATION extensions
 release.remove(ArmExtension("SECURITY"))
