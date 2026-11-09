@@ -122,6 +122,12 @@ M5OPS_BASE = 0x10010000
 # and gives programs 64 bytes by default), so gem5 implements 2048 bits.
 SVE_VL_QUADWORDS = 16
 
+# Max SME streaming vector length, in quadwords (128 bits): 16 x 128 = 2048
+# bits. QEMU max supports all powers of 2 from 128 to 2048 bits
+# (target/arm/tcg/cpu64.c: sme_vq.supported = SVE_VQ_POW2_MAP) and enables
+# them all by default. gem5 must offer the same maximum.
+SME_VL_QUADWORDS = 16
+
 # Kernel command line, only used when gem5 boots a kernel (see above).
 # One option per line:
 KERNEL_CMDLINE_OPTIONS = [
@@ -358,6 +364,7 @@ def build_system(args, kernel_path=None, root_device="/dev/vda1"):
     system.have_large_asid_64 = LARGE_ASID
 
     system.sve_vl = SVE_VL_QUADWORDS
+    system.sme_vl = SME_VL_QUADWORDS
 
     # Generic timer counter at QEMU's frequency.
     system.realview.sys_counter.freqs = [QEMU_CNTFRQ_HZ]

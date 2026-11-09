@@ -262,6 +262,7 @@ system.phys_addr_range_64 = 48
 system.have_large_asid_64 = True
 system.realview.sys_counter.freqs = [62_500_000]
 system.sve_vl = 16
+system.sme_vl = 16
 
 print(f"  Platform: QFlex_GICv3 with QEMU virt memory map")
 print(f"  Memory mode: atomic")
